@@ -1,5 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import { useRouteError } from "@remix-run/react";
+import { boundary } from "@shopify/shopify-app-remix/server";
 import { Page, Layout, Text, Card, BlockStack } from "@shopify/polaris";
 import { authenticate } from "~/shopify.server";
 
@@ -29,4 +31,8 @@ export default function Index() {
       </BlockStack>
     </Page>
   );
+}
+
+export function ErrorBoundary() {
+  return boundary.error(useRouteError());
 }

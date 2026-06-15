@@ -4,6 +4,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteError,
 } from "@remix-run/react";
 
 export default function App() {
@@ -24,6 +25,25 @@ export default function App() {
         <Outlet />
         <ScrollRestoration />
         <Scripts />
+      </body>
+    </html>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Error — CartCloser</title>
+      </head>
+      <body style={{ fontFamily: "sans-serif", padding: "2rem" }}>
+        <h1>Something went wrong</h1>
+        <p>
+          {error instanceof Error ? error.message : "An unexpected error occurred."}
+        </p>
       </body>
     </html>
   );

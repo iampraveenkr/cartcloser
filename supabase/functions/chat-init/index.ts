@@ -6,11 +6,18 @@ const corsHeaders = {
 };
 
 const FREE_MONTHLY_LIMIT = 50;
+const SHOP_DOMAIN_RE = /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/;
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
     const { shop, cartId, cartValue } = await req.json() as {
@@ -19,11 +26,14 @@ Deno.serve(async (req: Request) => {
       cartValue: number;
     };
 
-    if (!shop || !cartId || cartValue == null) {
-      return new Response(
-        JSON.stringify({ error: "Missing required fields: shop, cartId, cartValue" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+    if (!shop || !SHOP_DOMAIN_RE.test(shop)) {
+      return json({ error: "Invalid or missing shop domain" }, 400);
+    }
+    if (!cartId || typeof cartId !== "string") {
+      return json({ error: "Missing cartId" }, 400);
+    }
+    if (typeof cartValue !== "number" || cartValue <= 0 || cartValue > 999999) {
+      return json({ error: "cartValue must be a positive number under 1,000,000" }, 400);
     }
 
     const supabase = createClient(
@@ -39,10 +49,7 @@ Deno.serve(async (req: Request) => {
       .single();
 
     if (!settings?.isWidgetEnabled) {
-      return new Response(
-        JSON.stringify({ allowed: false, reason: "widget_disabled" }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return json({ allowed: false, reason: "widget_disabled" });
     }
 
     // Upsert UsageRecord and get current state
@@ -79,10 +86,7 @@ Deno.serve(async (req: Request) => {
     const allowed = isPaid || used < FREE_MONTHLY_LIMIT;
 
     if (!allowed) {
-      return new Response(
-        JSON.stringify({ allowed: false, reason: "usage_cap_reached" }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return json({ allowed: false, reason: "usage_cap_reached" });
     }
 
     // Create the chat session
@@ -111,20 +115,14 @@ Deno.serve(async (req: Request) => {
       })
       .eq("shop", shop);
 
-    return new Response(
-      JSON.stringify({
-        allowed: true,
-        sessionId: session.id,
-        greeting: settings.greetingMessage,
-        aiPersonaName: settings.aiPersonaName,
-      }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return json({
+      allowed: true,
+      sessionId: session.id,
+      greeting: settings.greetingMessage,
+      aiPersonaName: settings.aiPersonaName,
+    });
   } catch (err) {
     console.error("chat-init error:", err);
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return json({ error: "Internal server error" }, 500);
   }
 });
