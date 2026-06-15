@@ -17,7 +17,7 @@ scopes = "write_discounts,read_orders,read_products"
 redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
 
 [webhooks]
-api_version = "2026-07"
+api_version = "2025-10"
 
   [[webhooks.subscriptions]]
   uri = "/webhooks"
