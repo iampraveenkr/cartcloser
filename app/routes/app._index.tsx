@@ -26,10 +26,20 @@ import {
 import prisma from "~/db.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const shop = session.shop;
-
   const url = new URL(request.url);
+  // Dev-only bypass: ?preview=1 skips Shopify auth and loads test data
+  const isPreview =
+    process.env.NODE_ENV !== "production" &&
+    url.searchParams.get("preview") === "1";
+
+  let shop: string;
+  if (isPreview) {
+    shop = "test-shop.myshopify.com";
+  } else {
+    const { session } = await authenticate.admin(request);
+    shop = session.shop;
+  }
+
   const upgraded = url.searchParams.get("upgraded") === "true";
   const billingSetup = url.searchParams.get("billing_setup") === "true";
 

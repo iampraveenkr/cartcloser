@@ -17,13 +17,26 @@ import { getOrCreateUsageRecord } from "~/lib/db.server";
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const url = new URL(request.url);
+  const isPreview =
+    process.env.NODE_ENV !== "production" &&
+    url.searchParams.get("preview") === "1";
+
+  let shop: string | null = null;
+  if (isPreview) {
+    shop = "test-shop.myshopify.com";
+  } else {
+    const { session } = await authenticate.admin(request);
+    shop = session.shop;
+  }
 
   let usage = null;
-  try {
-    usage = await getOrCreateUsageRecord(session.shop);
-  } catch {
-    // non-fatal — nav renders without badge
+  if (shop) {
+    try {
+      usage = await getOrCreateUsageRecord(shop);
+    } catch {
+      // non-fatal — nav renders without badge
+    }
   }
 
   return json({ apiKey: process.env.SHOPIFY_API_KEY ?? "", usage });
