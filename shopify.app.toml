@@ -1,30 +1,27 @@
-name = "cartcloser"
-client_id = ""
-application_url = "SHOPIFY_APP_URL_PLACEHOLDER"
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+name = "CartCloser AI"
+client_id = "e63574ea936cf2b2c2aefd0c05110e7e"
+application_url = "https://shopify.dev/apps/default-app-home"
 embedded = true
 
 [build]
-automatically_update_urls_on_dev = true
-dev_store_url = ""
 include_config_on_deploy = true
+automatically_update_urls_on_dev = true
 
 [access_scopes]
-# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "write_discounts,read_orders,read_products"
 
 [auth]
-redirect_urls = [
-  "SHOPIFY_APP_URL_PLACEHOLDER/auth/callback",
-  "SHOPIFY_APP_URL_PLACEHOLDER/auth/shopify/callback",
-  "SHOPIFY_APP_URL_PLACEHOLDER/api/auth/callback"
-]
+redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
 
 [webhooks]
-api_version = "2024-10"
+api_version = "2026-07"
 
   [[webhooks.subscriptions]]
-  topics = ["app/uninstalled", "customers/data_request", "customers/redact", "shop/redact"]
   uri = "/webhooks"
+  topics = [ "app/uninstalled" ]
 
 [pos]
 embedded = false
