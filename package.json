@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
+    "@supabase/supabase-js": "^2.45.0",
     "@remix-run/node": "^2.13.1",
     "@remix-run/react": "^2.13.1",
     "@remix-run/serve": "^2.13.1",
