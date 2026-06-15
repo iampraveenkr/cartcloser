@@ -2,7 +2,7 @@
 
 name = "CartCloser AI"
 client_id = "e63574ea936cf2b2c2aefd0c05110e7e"
-application_url = "https://shopify.dev/apps/default-app-home"
+application_url = "https://localhost:3000"
 embedded = true
 
 [build]
@@ -14,7 +14,11 @@ automatically_update_urls_on_dev = true
 scopes = "write_discounts,read_orders,read_products"
 
 [auth]
-redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
+redirect_urls = [
+  "https://localhost:3000/auth/callback",
+  "https://localhost:3000/auth/shopify/callback",
+  "https://localhost:3000/api/auth/callback"
+]
 
 [webhooks]
 api_version = "2025-10"

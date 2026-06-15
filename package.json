@@ -19,6 +19,7 @@
     "@shopify/shopify-app-remix": "^3.5.0",
     "@shopify/shopify-app-session-storage-prisma": "^5.1.4",
     "@supabase/supabase-js": "^2.45.0",
+    "@vercel/remix": "^2.16.7",
     "isbot": "^4.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
