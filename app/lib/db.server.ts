@@ -77,6 +77,7 @@ export async function recordCommissionBilled(shop: string, amount: number) {
 export async function getShopAccessToken(shop: string): Promise<string | null> {
   const session = await prisma.session.findFirst({
     where: { shop, isOnline: false },
+    orderBy: { expires: "desc" },
     select: { accessToken: true },
   });
   return session?.accessToken ?? null;

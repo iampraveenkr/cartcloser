@@ -1,8 +1,10 @@
 import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData, useRouteError } from "@remix-run/react";
 import { login } from "~/shopify.server";
+
+const SHOP_DOMAIN_RE = /^[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com$/;
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -13,6 +15,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
+  const cloned = request.clone();
+  const formData = await cloned.formData();
+  const shop = formData.get("shop")?.toString().trim() ?? "";
+  if (!SHOP_DOMAIN_RE.test(shop)) {
+    return json({ errors: { shop: "Enter a valid .myshopify.com domain" } });
+  }
   const errors = await login(request);
   return json(errors);
 };
@@ -21,6 +29,7 @@ export default function AuthLogin() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
+  const shopError = (actionData as { errors?: { shop?: string } } | null)?.errors?.shop;
 
   return (
     <div
@@ -49,7 +58,7 @@ export default function AuthLogin() {
                 style={{
                   width: "100%",
                   padding: "8px 12px",
-                  border: "1px solid #ccc",
+                  border: shopError ? "1px solid red" : "1px solid #ccc",
                   borderRadius: 4,
                   fontSize: 14,
                   boxSizing: "border-box",
@@ -72,14 +81,22 @@ export default function AuthLogin() {
             >
               Log in
             </button>
-            {(actionData as { errors?: { shop?: string } } | null)?.errors?.shop ? (
-              <p style={{ color: "red", marginTop: 8 }}>
-                {(actionData as { errors?: { shop?: string } }).errors?.shop}
-              </p>
+            {shopError ? (
+              <p style={{ color: "red", marginTop: 8 }}>{shopError}</p>
             ) : null}
           </Form>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  return (
+    <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+      <h1>Login error</h1>
+      <p>{error instanceof Error ? error.message : "Something went wrong."}</p>
     </div>
   );
 }
