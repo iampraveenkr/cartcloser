@@ -17,7 +17,10 @@ scopes = "write_discounts,read_orders,read_products"
 redirect_urls = [
   "https://localhost:3000/auth/callback",
   "https://localhost:3000/auth/shopify/callback",
-  "https://localhost:3000/api/auth/callback"
+  "https://localhost:3000/api/auth/callback",
+  "https://YOUR_VERCEL_DOMAIN.vercel.app/auth/callback",
+  "https://YOUR_VERCEL_DOMAIN.vercel.app/auth/shopify/callback",
+  "https://YOUR_VERCEL_DOMAIN.vercel.app/api/auth/callback"
 ]
 
 [webhooks]

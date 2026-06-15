@@ -1,0 +1,5 @@
+.env
+supabase/
+prisma/migrations/
+build/
+node_modules/
