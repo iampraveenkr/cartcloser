@@ -1,0 +1,10 @@
+node_modules/
+build/
+.cache/
+.env
+*.db
+*.db-journal
+.shopify/
+.DS_Store
+.vercel
+dist/

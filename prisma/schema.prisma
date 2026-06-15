@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Shopify auth sessions — managed by @shopify/shopify-app-session-storage-prisma
+model Session {
+  id          String    @id
+  shop        String
+  state       String
+  isOnline    Boolean   @default(false)
+  scope       String?
+  expires     DateTime?
+  accessToken String
+  userId      BigInt?
+}
+
+// Per-shop AI negotiation widget configuration
+model MerchantSettings {
+  id                 String   @id @default(cuid())
+  shop               String   @unique
+  maxDiscountPercent Int      @default(10)
+  aiPersonaName      String   @default("Alex")
+  greetingMessage    String   @default("Hey! I noticed you haven't checked out yet. I'm authorised to get you a special deal today — want to see if we can work something out?")
+  isWidgetEnabled    Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// Individual cart negotiation conversations
+model ChatSession {
+  id                    String   @id @default(cuid())
+  shop                  String
+  cartId                String
+  cartValueAtStart      Float
+  status                String   @default("active")
+  agreedDiscountPercent Int?
+  discountCode          String?
+  commissionAmount      Float?
+  messages              String   @default("[]")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+// Per-shop billing and usage tracking
+model UsageRecord {
+  id                          String   @id @default(cuid())
+  shop                        String   @unique
+  billingPlan                 String   @default("free")
+  chatInitiationsThisMonth    Int      @default(0)
+  totalChatsAllTime           Int      @default(0)
+  totalConversions            Int      @default(0)
+  totalCommissionBilled       Float    @default(0)
+  billingCycleStart           DateTime @default(now())
+  shopifySubscriptionId       String?
+  usageSubscriptionLineItemId String?
+  billingSetupComplete        Boolean  @default(false)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+}
